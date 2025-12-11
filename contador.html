@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Contador de Truco (20/40)</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --panel: #111827;
+      --accent: #22c55e;
+      --accent2: #3b82f6;
+      --text: #e5e7eb;
+      --muted: #9ca3af;
+      --danger: #ef4444;
+      --warn: #f59e0b;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; padding: 24px;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";
+      background: radial-gradient(1200px 600px at 10% 10%, #0b1022, var(--bg));
+      color: var(--text);
+    }
+    header {
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+      margin-bottom: 16px;
+    }
+    h1 { font-size: 20px; margin: 0; letter-spacing: 0.2px; }
+    .mode {
+      display: flex; align-items: center; gap: 8px; background: #0b1220; border: 1px solid #1f2937;
+      padding: 8px 12px; border-radius: 10px;
+    }
+    .mode label { font-size: 14px; color: var(--muted); }
+    select {
+      background: #0b1220; color: var(--text);
+      border: 1px solid #374151; border-radius: 8px; padding: 6px 10px;
+    }
+    .container {
+      display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px;
+    }
+    .card {
+      background: linear-gradient(180deg, #0d1222, var(--panel));
+      border: 1px solid #1f2937; border-radius: 16px; padding: 16px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.35);
+    }
+    .card h2 {
+      margin: 0 0 4px 0; font-size: 18px; font-weight: 600;
+    }
+    .subtitle { color: var(--muted); font-size: 12px; margin-bottom: 12px; }
+    .score {
+      display: flex; align-items: baseline; gap: 8px; margin: 8px 0 12px;
+    }
+    .score .value { font-size: 42px; font-weight: 700; letter-spacing: 1px; }
+    .score .max { font-size: 14px; color: var(--muted); }
+    .buttons {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;
+    }
+    button {
+      border: 1px solid #334155; background: #0b1220; color: var(--text);
+      padding: 10px 12px; border-radius: 10px; cursor: pointer; font-weight: 600;
+      transition: transform 0.04s ease, background 0.2s ease, border-color 0.2s ease;
+    }
+    button:hover { transform: translateY(-1px); border-color: #475569; }
+    button:active { transform: translateY(0); }
+    .plus { background: #0c1a2a; border-color: #1f3b57; }
+    .plus:hover { background: #0f2236; }
+    .minus { background: #1a1320; border-color: #3b2748; }
+    .minus:hover { background: #23172b; }
+    .accent { background: #0c2a1a; border-color: #165b3a; }
+    .accent:hover { background: #0f3824; }
+    .accent2 { background: #0c1f2a; border-color: #1e4b7a; }
+    .accent2:hover { background: #0f2836; }
+    .danger { background: #1f1214; border-color: #5c2329; }
+    .danger:hover { background: #2a1619; }
+    .notice {
+      margin-top: 10px; font-size: 13px; color: var(--muted);
+    }
+    .winner {
+      margin-top: 8px; padding: 8px 10px; border-radius: 10px;
+      background: #092312; border: 1px solid #1f5034; color: #a7f3d0;
+      display: none;
+    }
+    .warning {
+      margin-top: 8px; padding: 8px 10px; border-radius: 10px;
+      background: #2a1c07; border: 1px solid #7a4f0a; color: #fde68a;
+      display: none;
+    }
+    footer {
+      margin-top: 16px; display: flex; gap: 8px; flex-wrap: wrap;
+    }
+    .small { font-size: 12px; color: var(--muted); }
+    .grid-1 { grid-column: 1 / -1; }
+    @media (max-width: 700px) {
+      .container { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Contador de Truco</h1>
+    <div class="mode">
+      <label for="maxSelect">Máximo:</label>
+      <select id="maxSelect" aria-label="Puntos máximos">
+        <option value="20" selected>20</option>
+        <option value="40">40</option>
+      </select>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="card">
+      <h2>Nosotros</h2>
+      <div class="subtitle">Sumá o restá puntos. Se bloquea al llegar al máximo.</div>
+      <div class="score">
+        <div class="value" id="p1Score">0</div>
+        <div class="max" id="p1Max">/ 20</div>
+      </div>
+      <div class="buttons">
+        <button class="plus" data-player="1" data-delta="1">+1</button>
+        <button class="plus" data-player="1" data-delta="2">+2</button>
+        <button class="plus accent" data-player="1" data-delta="3">+3</button>
+        <button class="plus accent2" data-player="1" data-delta="5">+5</button>
+        <button class="minus" data-player="1" data-delta="-1">-1</button>
+        <button class="minus" data-player="1" data-delta="-2">-2</button>
+        <button class="minus" data-player="1" data-delta="-3">-3</button>
+        <button class="minus danger" data-player="1" data-delta="-5">-5</button>
+      </div>
+      <div class="winner" id="p1Winner">¡Nosotros Ganamos!</div>
+      <div class="warning" id="p1Warn">No se puede superar el máximo.</div>
+    </section>
+
+    <section class="card">
+      <h2>Ellos</h2>
+      <div class="subtitle">Sumá o restá puntos. Se bloquea al llegar al máximo.</div>
+      <div class="score">
+        <div class="value" id="p2Score">0</div>
+        <div class="max" id="p2Max">/ 20</div>
+      </div>
+      <div class="buttons">
+        <button class="plus" data-player="2" data-delta="1">+1</button>
+        <button class="plus" data-player="2" data-delta="2">+2</button>
+        <button class="plus accent" data-player="2" data-delta="3">+3</button>
+        <button class="plus accent2" data-player="2" data-delta="5">+5</button>
+        <button class="minus" data-player="2" data-delta="-1">-1</button>
+        <button class="minus" data-player="2" data-delta="-2">-2</button>
+        <button class="minus" data-player="2" data-delta="-3">-3</button>
+        <button class="minus danger" data-player="2" data-delta="-5">-5</button>
+      </div>
+      <div class="winner" id="p2Winner">¡Ellos ganó!</div>
+      <div class="warning" id="p2Warn">No se puede superar el máximo.</div>
+    </section>
+
+    <section class="card grid-1">
+      <h2>Opciones</h2>
+      <div class="subtitle">Control global del marcador.</div>
+      <div class="buttons" style="grid-template-columns: repeat(3, 1fr);">
+        <button id="reset" class="danger">Reset</button>
+        <button id="undo" class="accent2">Deshacer</button>
+        <button id="swap" class="accent">Cambiar nombres</button>
+      </div>
+    </section>
+  </main>
+  </footer>
+
+  <script>
+    const maxSelect = document.getElementById('maxSelect');
+    const p1ScoreEl = document.getElementById('p1Score');
+    const p2ScoreEl = document.getElementById('p2Score');
+    const p1MaxEl = document.getElementById('p1Max');
+    const p2MaxEl = document.getElementById('p2Max');
+    const p1WinnerEl = document.getElementById('p1Winner');
+    const p2WinnerEl = document.getElementById('p2Winner');
+    const p1WarnEl = document.getElementById('p1Warn');
+    const p2WarnEl = document.getElementById('p2Warn');
+    const resetBtn = document.getElementById('reset');
+    const undoBtn = document.getElementById('undo');
+    const swapBtn = document.getElementById('swap');
+
+    let state = {
+      max: 20,
+      p1: 0,
+      p2: 0,
+      history: [] 
+    };
+
+    function render() {
+      p1ScoreEl.textContent = state.p1;
+      p2ScoreEl.textContent = state.p2;
+      p1MaxEl.textContent = `/ ${state.max}`;
+      p2MaxEl.textContent = `/ ${state.max}`;
+
+      const p1Over = state.p1 > state.max;
+      const p2Over = state.p2 > state.max;
+      p1WarnEl.style.display = p1Over ? 'block' : 'none';
+      p2WarnEl.style.display = p2Over ? 'block' : 'none';
+
+      const p1Win = state.p1 === state.max;
+      const p2Win = state.p2 === state.max;
+
+      p1WinnerEl.style.display = p1Win ? 'block' : 'none';
+      p2WinnerEl.style.display = p2Win ? 'block' : 'none';
+    }
+
+    function clampToMax(player) {
+      if (player === 1 && state.p1 > state.max) state.p1 = state.max;
+      if (player === 2 && state.p2 > state.max) state.p2 = state.max;
+    }
+
+    function applyDelta(player, delta) {
+      const prev = player === 1 ? state.p1 : state.p2;
+      let next = prev + delta;
+      if (next < 0) next = 0;
+      if (next > state.max) {
+        next = state.max;
+      }
+      state.history.push({ player, prev, next });
+      if (player === 1) state.p1 = next;
+      else state.p2 = next;
+
+      render();
+    }
+
+
+    document.querySelectorAll('button[data-player]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const player = Number(btn.getAttribute('data-player'));
+        const delta = Number(btn.getAttribute('data-delta'));
+        applyDelta(player, delta);
+      });
+    });
+
+    maxSelect.addEventListener('change', () => {
+      state.max = Number(maxSelect.value);
+      clampToMax(1);
+      clampToMax(2);
+      render();
+    });
+
+
+    resetBtn.addEventListener('click', () => {
+      state.p1 = 0;
+      state.p2 = 0;
+      state.history = [];
+      render();
+    });
+    undoBtn.addEventListener('click', () => {
+      const last = state.history.pop();
+      if (!last) return;
+      if (last.player === 1) state.p1 = last.prev;
+      else state.p2 = last.prev;
+      render();
+    });
+
+    swapBtn.addEventListener('click', () => {
+      const name1 = prompt('Nombre para Nosotros:', 'Nosotros') || 'Nosotros';
+      const name2 = prompt('Nombre para Ellos:', 'Ellos') || 'Ellos';
+      document.querySelectorAll('section.card h2')[0].textContent = name1;
+      document.querySelectorAll('section.card h2')[1].textContent = name2;
+    });
+
+
+    render();
+  </script>
+</body>
+</html>
